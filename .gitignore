@@ -5,7 +5,7 @@ __pycache__/
 # Redis Dumpfiles
 dump.rdb
 
-IntelliJ Projectfiles
+# IntelliJ Projectfiles
 *.iml
 
 # Windows thumbnail db
