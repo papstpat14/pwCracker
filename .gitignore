@@ -1,0 +1,15 @@
+# Python Cachefiles
+__pycache__/
+*.pyc
+
+# Redis Dumpfiles
+dump.rdb
+
+IntelliJ Projectfiles
+*.iml
+
+# Windows thumbnail db
+Thumbs.db
+
+# OSX files
+.DS_Store
