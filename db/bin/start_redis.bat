@@ -1,1 +1,1 @@
-start redis-server
+start redis-server ./redis.windows.conf
