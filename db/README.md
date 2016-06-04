@@ -1,8 +1,5 @@
 DB Worker for MD5 Cracker
 =========================
-TOC
----
-[TOC]
 
 Summary
 --------
@@ -10,17 +7,20 @@ This is an implementation of DB Workers providing functionality for the MD5 Crac
 
 - worker.py starts a DB worker with the config of config.json
 Each DB worker has an exclusive control queue and all DB workers share one order queue
-- init.py starts the initial filling of the DB
+- init.py starts the initial filling of the DB based on a wordlist.txt file (can be configured in config.json)
 
 Pre-requisites
 ---------------
-For worker.py and init.py following python packages are required (install via pip):
+For worker.py and init.py following python3 packages are required (install via pip):
 - pika==0.10.0
 - pymongo==3.2.2 or redis==2.10.0
 
-In addition redis (or mongo-db) and rabbitmq must be installed.
+To Run init.py and worker.py, python3 has to be used!
 
-If you want to use the .bat files, the redis path and mongo/bin path has to be present in PATH.
+In addition redis (or mongo-db) as well as rabbitmq must be available.
+To use the Testserver, node.js must be present.
+
+If you want to use the .bat files under Windows, the redis path and mongo/bin path has to be present in PATH.
 
 Usage
 ------
