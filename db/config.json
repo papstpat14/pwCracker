@@ -14,14 +14,14 @@
       "order": "order",
       "control": "control"
     },
-    "username": null,
-    "password": null
+    "username": "distcomp",
+    "password": "distcomp"
   },
   "redis": {
     "host": "localhost",
     "port": "6379",
     "db": "0",
-    "password": null
+    "password": "distcomp"
   },
   "mongo": {
     "host": "localhost",
