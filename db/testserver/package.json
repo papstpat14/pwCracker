@@ -1,0 +1,27 @@
+{
+  "name": "distcomp dbworker testserver",
+  "version": "1.0.0",
+  "description": "A Testserver for the DB functionality",
+  "author": "Patrick Kager <patrickaugustjosef.kager@edu.fh-joanneum.at>",
+  "contributors": [
+    {
+      "name": "Patrick Kager",
+      "email": "patrickaugustjosef.kager@edu.fh-joanneum.at"
+    },
+    {
+      "name": "Alb Pellumbi",
+      "email": "alb.pellumbi@edu.fh-joanneum.at"
+    }
+  ],
+  "private": true,
+  "keywords": [
+    "dbworker",
+    "distributed",
+    "computing"
+  ],
+  "dependencies": {
+    "amqplib": "^0.4.1",
+    "md5": "^2.1.0"
+  },
+  "license": "MIT"
+}

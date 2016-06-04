@@ -1,0 +1,34 @@
+{
+  "pwlistfilename": "./wordlists/wordlist.txt",
+  "storageengine": "redis",
+  "rabbitmq": {
+    "host": "localhost",
+    "port": "5672",
+    "vhost": "/",
+    "exchangename": "distcomp_md5_exchange",
+    "orderqueuename": "distcomp_db_orderqueue",
+    "orderqueuedurable": false,
+    "replyqueuename": "distcomp_md5_replyqueue",
+    "replyqueuedurable": false,
+    "routing_keys": {
+      "order": "order",
+      "control": "control"
+    },
+    "username": null,
+    "password": null
+  },
+  "redis": {
+    "host": "localhost",
+    "port": "6379",
+    "db": "0",
+    "password": null
+  },
+  "mongo": {
+    "host": "localhost",
+    "port": "27017",
+    "db": "distcomp_md5_db",
+    "table": "hashes",
+    "username": null,
+    "password": null
+  }
+}
