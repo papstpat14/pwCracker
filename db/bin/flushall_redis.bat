@@ -1,1 +1,1 @@
-start redis-cli flushall
+redis-cli --pipe < flushall_redis_message.txt
