@@ -6,13 +6,15 @@ from sys import argv
 import pika
 
 # edit the this config parameters
-host = "localhost"
+host = "locahost"
 orderQueue = "order"
 replyQueue = "reply"
+user="worker"
+password="worker"
 # ----------------------------------------------------------------
 
 func = None
-if len(argv) != 2:
+if len(argv) < 2 or len(argv) > 3:
     raise ValueError("illegal cmd line argument, use -b for brute_force or -w for web service instead")
 elif argv[1] == "-b":
     func = brute_force
@@ -21,7 +23,10 @@ elif argv[1] == "-w":
 else:
     raise ValueError("illegal cmd line argument: " + argv[1] + ", use -b for brute_force or -w for web service instead")
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
+if len(argv) > 2:
+        host=argv[2];
+credentials = pika.PlainCredentials(user, password)
+connection = pika.BlockingConnection(pika.ConnectionParameters(host=host,credentials=credentials))
 channel = connection.channel()
 channel.queue_declare(queue=orderQueue, durable=True)
 
@@ -33,7 +38,7 @@ def callback(ch, method, properties, body):
 
 
 def send_reply(obj):
-    con = pika.BlockingConnection(pika.ConnectionParameters(host=host))
+    con = pika.BlockingConnection(pika.ConnectionParameters(host=host,credentials=credentials))
     cha = con.channel()
     cha.queue_declare(queue=replyQueue, durable=True)
     text = json.dumps(obj.__dict__)
