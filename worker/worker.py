@@ -1,5 +1,7 @@
 #!/usr/bin/env python3.4
 import json
+import threading
+
 from worker_type import call_api
 from worker_type import brute_force
 from sys import argv
@@ -9,8 +11,10 @@ import pika
 host = "locahost"
 orderQueue = "order"
 replyQueue = "reply"
+controlQueue = "control"
 user="worker"
 password="worker"
+stoppedCalc={}
 # ----------------------------------------------------------------
 
 func = None
@@ -32,10 +36,16 @@ channel.queue_declare(queue=orderQueue, durable=True)
 
 
 def callback(ch, method, properties, body):
-    obj = func(body.decode("utf-8"))
+    body_string = body.decode("utf-8");
+    stoppedCalc[json.loads(body_string)["md5"]]=0
+    obj = func(body_string,stoppedCalc)
     send_reply(obj)
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
+def callbackControl(ch, method, properties, body):
+    controlMessage = json.loads(body.decode("utf-8"));
+    if(controlMessage["action"]=="stop"):
+        stoppedCalc[controlMessage["md5"]]=1
 
 def send_reply(obj):
     con = pika.BlockingConnection(pika.ConnectionParameters(host=host,credentials=credentials))
@@ -47,4 +57,13 @@ def send_reply(obj):
 
 channel.basic_qos(prefetch_count=1)
 channel.basic_consume(callback, queue=orderQueue)
-channel.start_consuming()
+#run order queue in another thread
+t = threading.Thread (target=channel.start_consuming)
+t.daemon=True
+t.start()
+#start control queue
+controlConnection = pika.BlockingConnection(pika.ConnectionParameters(host=host,credentials=credentials))
+controlChannel = controlConnection.channel()
+controlChannel.queue_declare(queue=controlQueue,durable=True)
+controlChannel.basic_consume(callbackControl, queue=controlQueue)
+controlChannel.start_consuming()

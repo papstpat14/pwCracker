@@ -39,6 +39,14 @@ class ApiTestCase(unittest.TestCase):
         #stop the worker
         self.stop_worker(self,pid)
 
+    def test_worker_queue_abort(self):
+        # start the worker
+        pid = self.start_worker(self, "-b", "192.168.56.101")
+        #send the impossible task
+        self.queue_worker_job(self,"3fc89c714a0bdcaef4ea2fdd23a40527", "IAmTheHodor39@","Worker aborted",True)
+        # stop the worker
+        self.stop_worker(self, pid)
+
     @staticmethod
     def start_worker(x,mode,host):
         pid = subprocess.Popen([sys.executable, os.path.dirname(__file__)+"/worker.py",mode,host]).pid
@@ -49,15 +57,17 @@ class ApiTestCase(unittest.TestCase):
         os.kill(pid,signal.SIGTERM)
 
     @staticmethod
-    def queue_worker_job(x,md5,pw):
+    def queue_worker_job(x,md5,pw,err=None,abort=False):
         #create json to pass to worker
         body = '{"md5":"' + md5 + '"}'
+        abortbody='{"md5":"'+md5+'", "action":"stop"}'
         #login at server
         credentials = pika.PlainCredentials("worker", "worker")
         connection = pika.BlockingConnection(pika.ConnectionParameters(host="192.168.56.101", credentials=credentials))
         #create order and reply queues
         channel = connection.channel()
         channel.queue_declare(queue="order", durable=True)
+        channel.queue_declare(queue="control",durable=True)
         replychannel = connection.channel()
         replychannel.queue_declare(queue="reply", durable=True)
         #read all old messages in reply queue
@@ -75,19 +85,27 @@ class ApiTestCase(unittest.TestCase):
             method_frame,header_frame,result = replychannel.basic_get(queue='reply', no_ack=False)
             if method_frame:
                 result_body=json.loads(result.decode("utf-8"))
-                x.assertEqual(result_body["success"], True)
-                x.assertEqual(result_body["md5"], md5)
-                x.assertEqual(result_body["pw"], pw)
-                x.assertEqual(result_body["err"], "")
+                if(err!=None):
+                    x.assertEqual(result_body["err"],err)
+                else:
+                    x.assertEqual(result_body["success"], True)
+                    x.assertEqual(result_body["md5"], md5)
+                    x.assertEqual(result_body["pw"], pw)
+                    x.assertEqual(result_body["err"], "")
                 replychannel.basic_ack(method_frame.delivery_tag)
                 break;
             else:
                 sleep(1)
+                #if abort is requested abort after 1 second
+                if(abort):
+                    channel.basic_publish(exchange="",routing_key="control",body=abortbody)
 
     @staticmethod
     def call_worker_type(x, md5, pw, func):
+        controlList={}
+        controlList[md5]=0
         body = '{"md5":"' + md5 + '"}'
-        obj = func(body)
+        obj = func(body,controlList)
         x.assertEqual(obj.success, True)
         x.assertEqual(obj.md5, md5)
         x.assertEqual(obj.pw, pw)

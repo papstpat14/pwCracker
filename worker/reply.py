@@ -8,5 +8,7 @@ class Reply:
         self.pw = pw
         if err is HTTPError:
             self.err = err.reason
+        elif err != None:
+            self.err = err
         else:
             self.err = ""
