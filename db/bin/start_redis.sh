@@ -1,3 +1,3 @@
 #!/bin/bash
 
-redis-server ./redis.linux.conf
+screen -d -m redis-server ./redis.linux.conf
