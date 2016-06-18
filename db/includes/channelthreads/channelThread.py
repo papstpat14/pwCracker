@@ -4,13 +4,14 @@ import threading
 
 
 class ChannelThread(threading.Thread):
-    def __init__(self, confdata, reqHandler, confdata_queuename, confdata_routingkey, durable):
+    def __init__(self, confdata, reqHandler, confdata_queuename, confdata_routingkey, durable, prefetchCount):
         super(ChannelThread, self).__init__()
         self.confdata = confdata
         self.reqHandler = reqHandler
         self.confdata_queuename = confdata_queuename
         self.confdata_routingkey = confdata_routingkey
         self.durable = durable
+        self.prefetchCount = prefetchCount
 
     def getChannel(self):
         credentials = None
@@ -43,6 +44,7 @@ class ChannelThread(threading.Thread):
         channel.queue_bind(exchange=exchangename,
                            queue=queuename,
                            routing_key=self.confdata['rabbitmq']['routing_keys'][self.confdata_routingkey])
+        channel.basic_qos(prefetch_count=self.prefetchCount)
         channel.basic_consume(self.reqHandler.on_request, queue=queuename)
 
     def run(self):
