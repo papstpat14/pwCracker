@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 class RedisMongoPasswordHandler:
     def __init__(self, redisPasswordHdl, mongoPasswordHdl):
