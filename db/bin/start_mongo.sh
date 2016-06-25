@@ -1,3 +1,3 @@
 #!/bin/bash
 
-mongod -f mongod.conf
+screen -d -m mongod -f mongod.conf

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sh start_dbworker.sh 5 5
+screen -d -m ./start_dbworker.sh 5 5

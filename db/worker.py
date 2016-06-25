@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import json
 import sys
 
@@ -13,9 +13,14 @@ dph = None
 if (confdata['storageengine'] == 'redis'):
     from includes.passwordhandler.redisPasswordHandler import RedisPasswordHandler
     dph = RedisPasswordHandler(confdata)
-else:
+elif(confdata['storageengine'] == 'mongo'):
     from includes.passwordhandler.mongoPasswordHandler import MongoPasswordHandler
     dph = MongoPasswordHandler(confdata)
+else:
+    from includes.passwordhandler.redisPasswordHandler import RedisPasswordHandler
+    from includes.passwordhandler.mongoPasswordHandler import MongoPasswordHandler
+    from includes.passwordhandler.redisMongoPasswordHandler import RedisMongoPasswordHandler
+    dph = RedisMongoPasswordHandler(RedisPasswordHandler(confdata), MongoPasswordHandler(confdata))
 
 pwtimeout = 0
 if(len(sys.argv) > 1):
@@ -24,8 +29,8 @@ if(len(sys.argv) > 1):
 ph = PasswordHandler(dph)
 reqHandler = RequestHandler(ph, confdata['rabbitmq']['replyqueuename'], pwtimeout)
 
-orderThread = ChannelThread(confdata, reqHandler, 'orderqueuename', 'order', confdata['rabbitmq']['orderqueuedurable'])
-controlThread = ChannelThread(confdata, reqHandler, None, 'control', False)
+orderThread = ChannelThread(confdata, reqHandler, 'orderqueuename', 'order', confdata['rabbitmq']['orderqueuedurable'], 1)
+controlThread = ChannelThread(confdata, reqHandler, None, 'control', False, 5)
 
 orderThread.start()
 controlThread.start()
