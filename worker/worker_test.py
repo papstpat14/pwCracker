@@ -25,8 +25,8 @@ class ApiTestCase(unittest.TestCase):
         #start the worker
         pid = self.start_worker(self,"-b", "192.168.56.101")
         #send him the message
-        self.queue_worker_job(self,"187ef4436122d1cc2f40dc2b92f0eba0", "ab")
-        self.queue_worker_job(self,"128ecf542a35ac5270a87dc740918404", "bla")
+        self.queue_worker_job(self,"187ef4436122d1cc2f40dc2b92f0eba0", "ab","brute")
+        self.queue_worker_job(self,"128ecf542a35ac5270a87dc740918404", "bla","brute")
         #stop the worker
         self.stop_worker(self,pid)
 
@@ -34,8 +34,8 @@ class ApiTestCase(unittest.TestCase):
         #start the worker
         pid = self.start_worker(self,"-w", "192.168.56.101")
         #send him the message
-        self.queue_worker_job(self,"1c0b76fce779f78f51be339c49445c49", "secure")
-        self.queue_worker_job(self,"3fc89c714a0bdcaef4ea2fdd23a40527", "IAmTheHodor39@")
+        self.queue_worker_job(self,"1c0b76fce779f78f51be339c49445c49", "secure","web")
+        self.queue_worker_job(self,"3fc89c714a0bdcaef4ea2fdd23a40527", "IAmTheHodor39@","web")
         #stop the worker
         self.stop_worker(self,pid)
 
@@ -43,7 +43,7 @@ class ApiTestCase(unittest.TestCase):
         # start the worker
         pid = self.start_worker(self, "-b", "192.168.56.101")
         #send the impossible task
-        self.queue_worker_job(self,"3fc89c714a0bdcaef4ea2fdd23a40527", "IAmTheHodor39@","Worker aborted",True)
+        self.queue_worker_job(self,"3fc89c714a0bdcaef4ea2fdd23a40527", "IAmTheHodor39@","brute","Worker aborted",True)
         # stop the worker
         self.stop_worker(self, pid)
 
@@ -57,7 +57,7 @@ class ApiTestCase(unittest.TestCase):
         os.kill(pid,signal.SIGTERM)
 
     @staticmethod
-    def queue_worker_job(x,md5,pw,err=None,abort=False):
+    def queue_worker_job(x,md5,pw,type,err=None,abort=False):
         #create json to pass to worker
         body = '{"md5":"' + md5 + '"}'
         abortbody='{"md5":"'+md5+'", "action":"stop"}'
@@ -66,8 +66,7 @@ class ApiTestCase(unittest.TestCase):
         connection = pika.BlockingConnection(pika.ConnectionParameters(host="192.168.56.101", credentials=credentials))
         #create order and reply queues
         channel = connection.channel()
-        channel.queue_declare(queue="order", durable=True)
-        channel.queue_declare(queue="control",durable=True)
+        channel.exchange_declare(exchange="pw_exchange",type="direct")
         replychannel = connection.channel()
         replychannel.queue_declare(queue="reply", durable=True)
         #read all old messages in reply queue
@@ -78,7 +77,7 @@ class ApiTestCase(unittest.TestCase):
             else:
                 break
         #publish to order queue
-        channel.basic_publish(exchange="", routing_key="order", body=body)
+        channel.basic_publish(exchange="pw_exchange", routing_key="order_"+type, body=body)
         #check if the worker responds correctly
         while True:
             #sync read from queue
@@ -95,10 +94,11 @@ class ApiTestCase(unittest.TestCase):
                 replychannel.basic_ack(method_frame.delivery_tag)
                 break;
             else:
+
                 sleep(1)
                 #if abort is requested abort after 1 second
                 if(abort):
-                    channel.basic_publish(exchange="",routing_key="control",body=abortbody)
+                    channel.basic_publish(exchange="pw_exchange",routing_key="control",body=abortbody)
 
     @staticmethod
     def call_worker_type(x, md5, pw, func):

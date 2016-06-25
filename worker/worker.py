@@ -1,20 +1,16 @@
 #!/usr/bin/env python3.4
 import json
 import threading
+import configparser
 
 from worker_type import call_api
 from worker_type import brute_force
 from sys import argv
 import pika
 
-# edit the this config parameters
-host = "locahost"
-orderQueue = "order"
-replyQueue = "reply"
-controlQueue = "control"
-user="worker"
-password="worker"
-stoppedCalc={}
+configParser = configparser.ConfigParser()
+
+configFile="brute.ini"
 # ----------------------------------------------------------------
 
 func = None
@@ -22,17 +18,36 @@ if len(argv) < 2 or len(argv) > 3:
     raise ValueError("illegal cmd line argument, use -b for brute_force or -w for web service instead")
 elif argv[1] == "-b":
     func = brute_force
+    configFile="brute.ini"
 elif argv[1] == "-w":
     func = call_api
+    configFile="web.ini"
 else:
     raise ValueError("illegal cmd line argument: " + argv[1] + ", use -b for brute_force or -w for web service instead")
 
+configParser.read(configFile)
+
+# edit the this config parameters
+host = configParser["Worker"]["host"]
+orderQueue = configParser["Worker"]["orderqueue"]
+orderExchange=configParser["Worker"]["orderexchange"]
+orderKey = configParser["Worker"]["orderkey"]
+controlExchange=configParser["Worker"]["controlexchange"]
+controlKey=configParser["Worker"]["controlkey"]
+replyQueue = configParser["Worker"]["replyqueue"]
+user=configParser["Worker"]["user"]
+password=configParser["Worker"]["password"]
+stoppedCalc={}
+
 if len(argv) > 2:
-        host=argv[2];
+    host = argv[2]
+
 credentials = pika.PlainCredentials(user, password)
 connection = pika.BlockingConnection(pika.ConnectionParameters(host=host,credentials=credentials))
 channel = connection.channel()
 channel.queue_declare(queue=orderQueue, durable=True)
+channel.queue_bind(exchange=orderExchange,queue=orderQueue,routing_key=orderKey)
+channel.queue_bind(exchange=orderExchange,queue=orderQueue,routing_key=orderQueue)
 
 
 def callback(ch, method, properties, body):
@@ -64,6 +79,7 @@ t.start()
 #start control queue
 controlConnection = pika.BlockingConnection(pika.ConnectionParameters(host=host,credentials=credentials))
 controlChannel = controlConnection.channel()
-controlChannel.queue_declare(queue=controlQueue,durable=True)
+controlQueue = controlChannel.queue_declare(exclusive=True,durable=True).method.queue
+controlChannel.queue_bind(exchange=controlExchange,queue=controlQueue,routing_key=controlKey)
 controlChannel.basic_consume(callbackControl, queue=controlQueue)
 controlChannel.start_consuming()
