@@ -1,40 +1,56 @@
-"use strict";
+'use strict';
+(function () {
+    var username;
 
-var webSocketTest = function () {
-    if ("WebSocket" in window) {
+    var ws;
+    initSocketConnection();
 
-        var hash = document.getElementById("hash").value;
+    function toMessage(type, hash) {
+        return JSON.stringify({
+            type: type,
+            hash: hash
+        });
+    }
 
-        alert("WebSocket is supported by your Browser! Got hash: " + hash);
+    document.getElementById('crack').onclick = function () {
+        initSocketConnection();
 
-        // Let us open a web socket
-        var ws = new WebSocket("ws://localhost:8080/echo");
+        ws.send(toMessage('md5', document.getElementById('hash').value));
+    };
 
+    function showMessage(message) {
+        if (message.type === 'md5') {
+            document.getElementById('output').innerHTML += '<p>' + message.hash + ' : ' + message.value + '</p>';
+        } else {
+            console.log('Unsupported message type: ' + message.type);
+        }
+    }
+
+    function initSocketConnection() {
+        if (ws) {
+            return;
+        }
+
+        document.getElementById('output').innerHTML += '<p>' + "testadsfasdf" + ' : ' + "asdf" + '</p>';
+
+        ws = new WebSocket('ws://localhost:8080', 'chat-protocol');
         ws.onopen = function () {
-            // Web Socket is connected, send data using send()
-            ws.send("Message to send");
-            alert("Message is sent...");
+            console.log('connected to server!');
         };
 
-        ws.onmessage = function (evt) {
-            var received_msg = evt.data;
-            alert("Message is received...");
+        ws.onmessage = function (ev) {
+            console.log('< ' + ev.data);
+            showMessage(JSON.parse(ev.data));
         };
 
         ws.onclose = function () {
-            // websocket is closed.
-            alert("Connection is closed...");
+            console.log('closed');
+            ws = null;
+        };
+
+        ws.onerror = function () {
+            alert('error! could not create socket connection to ws://localhost:8080');
+            ws = null;
         };
     }
-
-    else {
-        // The browser doesn't support WebSocket
-        alert("WebSocket NOT supported by your Browser!");
-    }
-};
-
-var setupEventListeners = function () {
-    document.getElementById("crack").addEventListener("click", webSocketTest);
-};
-
-setupEventListeners();
+}());
