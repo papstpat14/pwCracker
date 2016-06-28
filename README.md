@@ -2,25 +2,25 @@
 # pwCracker
 A Distributed Computing Project
 
-o) Documentation Team:
-     Student: Stefan Jodl
-o) Management Team
-     Student: Papst Patrick
-o) DB-Team
-     Student: Patrick Kager
-     Student: Alb Pellumbi
-o) Message-Queue Team:
-     Student: Michael König
-     Student: Alexander Schug 
-o) WebServer-Team
-     Student: Stefan Obendrauf
-     Student: Michael Koch
-o) Frontend Team
-     Student: Michael Purkart
-     Student: Melanie Schneider
-o) Workers
-     Student: Patrick Kainz
-     Student: Markus Schalk
+*Documentation Team:
+     *Student: Stefan Jodl
+*Management Team
+     *Student: Papst Patrick
+*DB-Team
+     *Student: Patrick Kager
+     *Student: Alb Pellumbi
+*Message-Queue Team:
+     *Student: Michael König
+     *Student: Alexander Schug 
+*WebServer-Team
+     *Student: Stefan Obendrauf
+     *Student: Michael Koch
+*Frontend Team
+     *Student: Michael Purkart
+     *Student: Melanie Schneider
+*Workers
+     *Student: Patrick Kainz
+     *Student: Markus Schalk
 
 
 ## Structure
