@@ -1,6 +1,6 @@
 ![FH Joanneum Logo](/doc/FHJ_Logo_Computer_60mm_rgb-01.jpg)
 # pwCracker
-A Distributed Computing Project
+_**A Distributed Computing Project**_
 
 * Documentation Team: 1
      * Student: Stefan Jodl 1a
