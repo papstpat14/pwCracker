@@ -28,13 +28,15 @@ A Distributed Computing Project
 * /server NodeJS + Frontend
 * /worker Worker
 * /doc Documentation
+
 ## Architecture
-Schritt 1: GET Website von Node Server
-Schritt 2: Client baut Websocket Verbindung auf und schickt MD5 Hash an den Server
-Schritt 3: Node Server lässt den Hash vom Exchange in die Ordner Queues einsortieren
-Schritt 4: Einer der Worker sortiert das Ergebnis in die Reply Queue einsortieren
-Schritt 5: Node Server lässt Abbruchmeldung in die Control Queues einsortiert
-Schritt 6: Client wird über Websocket über das Ergebnis informiert.
-![Architekture](/doc/Architecture.jpg)
+* Schritt 1: GET Website von Node Server 1
+* Schritt 2: Client baut Websocket Verbindung auf und schickt MD5 Hash an den Server 2
+* Schritt 3: Node Server lässt den Hash vom Exchange in die Ordner Queues einsortieren 3
+* Schritt 4: Einer der Worker sortiert das Ergebnis in die Reply Queue einsortieren 4
+* Schritt 5: Node Server lässt Abbruchmeldung in die Control Queues einsortiert 5
+* Schritt 6: Client wird über Websocket über das Ergebnis informiert. 6
+
+![Architekture](/doc/Architecture_new.jpg)
 
 
