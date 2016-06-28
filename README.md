@@ -16,7 +16,7 @@ _**A Distributed Computing Project**_
      * Student: Stefan Obendrauf
      * Student: Michael Koch
 * Frontend Team
-     * Student: Michael Purkart
+     * Student: Julian Purkart
      * Student: Melanie Schneider
 * Workers
      * Student: Patrick Kainz 
