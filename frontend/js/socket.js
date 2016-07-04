@@ -31,7 +31,7 @@
             return;
         }
 
-        ws = new WebSocket('ws://localhost:8080', 'crack-protocol');
+        ws = new WebSocket('ws://'+window.location.host, 'crack-protocol');
         ws.onopen = function () {
             console.log('connected to server!');
         };
