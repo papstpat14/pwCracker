@@ -61,4 +61,4 @@ var wsServer = new socketServer({
     autoAcceptConnections: false
 });
 
-messageHandler(wsServer);
+messageHandler.initSockets(wsServer);

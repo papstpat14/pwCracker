@@ -1,3 +1,5 @@
+var exports = module.exports = {};
+
 // Initiate Websocket Server
 function initSocketServer(wsServer){
 	// wsServer is not set -> return
@@ -27,6 +29,6 @@ function initSocketServer(wsServer){
 }
 
 // Export Module with param wsServer
-module.exports = (wsServer) => {
+exports.initSockets = function(wsServer){
 	initSocketServer(wsServer);
 }
