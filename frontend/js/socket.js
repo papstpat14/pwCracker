@@ -1,28 +1,34 @@
 'use strict';
 (function () {
-    var username;
-
     var ws;
     initSocketConnection();
 
-    function toMessage(type, hash) {
+    function toMessage(md5, pw) {
         return JSON.stringify({
-            type: type,
-            hash: hash
+            md5: md5,
+            pw: pw
         });
     }
 
     document.getElementById('crack').onclick = function () {
         initSocketConnection();
 
-        ws.send(toMessage('md5', document.getElementById('hash').value));
+        ws.send(toMessage(document.getElementById('hash').value, null));
     };
 
     function showMessage(message) {
-        if (message.type === 'md5') {
-            document.getElementById('output').innerHTML += '<p>' + message.hash + ' : ' + message.value + '</p>';
+        if (message.md5) {
+            if (message.success) {
+                document.getElementById('output').innerHTML += '<p style="color: green;"><b>Passwort für ' + message.md5 + ' gefunden von ' + message.workertype + ' : ' + message.pw + '</b></p>';
+            } else {
+                if (message.success === false) {
+                    document.getElementById('output').innerHTML += '<p style="color: red;"><b>Passwort für ' + message.md5 + ' NICHT gefunden von ' + message.workertype + ' - Error: ' + message.err.toString() + '</b></p>';
+                } else {
+                    document.getElementById('output').innerHTML += '<p>Passwort für ' + message.md5 + ':' + message.pw + '</p>';
+                }
+            }
         } else {
-            console.log('Unsupported message type: ' + message.type);
+            console.log('Unsupported message type');
         }
     }
 

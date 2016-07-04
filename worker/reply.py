@@ -2,13 +2,13 @@ from urllib.error import HTTPError
 
 
 class Reply:
-    def __init__(self, md5, pw, err=None):
+    def __init__(self, md5, pw, workertype, err=None):
         self.success = err is None
+        self.workertype = workertype
         self.md5 = md5
         self.pw = pw
+        self.err = []
         if err is HTTPError:
-            self.err = err.reason
+            self.err.extend([err.reason])
         elif err != None:
-            self.err = err
-        else:
-            self.err = ""
+            self.err.extend([err])

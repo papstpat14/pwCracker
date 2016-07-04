@@ -52,15 +52,17 @@ channel.queue_bind(exchange=orderExchange,queue=orderQueue,routing_key=orderQueu
 
 def callback(ch, method, properties, body):
     body_string = body.decode("utf-8");
-    stoppedCalc[json.loads(body_string)["md5"]]=0
-    obj = func(body_string,stoppedCalc)
-    send_reply(obj)
+    if json.loads(body_string)["action"] == "get":
+        stoppedCalc[json.loads(body_string)["md5"]]=0
+        obj = func(body_string,stoppedCalc)
+        send_reply(obj)
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 def callbackControl(ch, method, properties, body):
     controlMessage = json.loads(body.decode("utf-8"));
     if(controlMessage["action"]=="stop"):
         stoppedCalc[controlMessage["md5"]]=1
+    ch.basic_ack(delivery_tag=method.delivery_tag)
 
 def send_reply(obj):
     con = pika.BlockingConnection(pika.ConnectionParameters(host=host,credentials=credentials))

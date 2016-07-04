@@ -6,8 +6,8 @@ var http = require("http");
 var path = require("path");
 var url = require("url");
 var fs = require("fs");
+var amqp = require('amqplib/callback_api');
 var socketServer = require('websocket').server;
-var messageHandler = require("./message_handler/messageHandler.js");
 
 // Get port from package.json or default 8080
 var port = process.env.npm_package_config_port || 8080;
@@ -61,4 +61,98 @@ var wsServer = new socketServer({
     autoAcceptConnections: false
 });
 
-messageHandler.initSockets(wsServer);
+var conns = {};
+var waitsForHash = {};
+
+var credentials = '';
+if (process.env.npm_package_config_rabbitmq_username && process.env.npm_package_config_rabbitmq_password) {
+    credentials = process.env.npm_package_config_rabbitmq_username + ':' + process.env.npm_package_config_rabbitmq_password + '@';
+}
+var rabbitconnstring = 'amqp://' + credentials + process.env.npm_package_config_rabbitmq_host + ':' + process.env.npm_package_config_rabbitmq_port + process.env.npm_package_config_rabbitmq_vhost;
+var channel = null;
+amqp.connect(rabbitconnstring, function (err, conn) {
+        conn.createChannel(function (err, ch) {
+                channel = ch;
+                ch.assertQueue(process.env.npm_package_config_rabbitmq_replyqueuename, {durable: process.env.npm_package_config_rabbitmq_replyqueuedurable}, function (err, q) {
+                    ch.consume(q.queue, function (msg) {
+                        console.log(' [.] Got %s', msg.content.toString());
+                        var msgObject = JSON.parse(msg.content.toString());
+                        if (msgObject.success && (!msgObject.action || msgObject.action == 'get' )) {
+                            var requestToRabbit = {
+                                'md5': msgObject.md5,
+                                'action': 'stop',
+                                'pw': msgObject.pw
+                            };
+                            ch.publish(process.env.npm_package_config_rabbitmq_exchangename, process.env.npm_package_config_rabbitmq_routingkeys_control, new Buffer(JSON.stringify(requestToRabbit)));
+                            requestToRabbit.action = 'put';
+                            ch.publish(process.env.npm_package_config_rabbitmq_exchangename, process.env.npm_package_config_rabbitmq_routingkeys_order, new Buffer(JSON.stringify(requestToRabbit)));
+                            for (var remAdd in waitsForHash[msgObject.md5]) {
+                                if (!waitsForHash[msgObject.md5].hasOwnProperty(remAdd)) continue;
+                                if (conns[remAdd] && conns[remAdd].conn && conns[remAdd].hash && conns[remAdd].hash == msgObject.md5) {
+                                    conns[remAdd].conn.sendUTF(JSON.stringify(msgObject));
+                                    if (waitsForHash[msgObject.md5][remAdd]['DB'] != null && waitsForHash[msgObject.md5][remAdd]['Webservice'] != null && waitsForHash[msgObject.md5][remAdd]['Bruteforce'] != null) {
+                                        conns[remAdd].hash = null;
+                                        delete waitsForHash[msgObject.md5][remAdd];
+                                    }
+                                }
+                            }
+                        } else {
+                            if (msgObject.success === false) {
+                                for (var remAdd in waitsForHash[msgObject.md5]) {
+                                    if (!waitsForHash[msgObject.md5].hasOwnProperty(remAdd)) continue;
+                                    if (conns[remAdd] && conns[remAdd].conn && conns[remAdd].hash && conns[remAdd].hash == msgObject.md5) {
+                                        waitsForHash[msgObject.md5][remAdd][msgObject.workertype] = false;
+                                        conns[remAdd].conn.sendUTF(JSON.stringify(msgObject));
+                                        if (waitsForHash[msgObject.md5][remAdd]['DB'] != null && waitsForHash[msgObject.md5][remAdd]['Webservice'] != null && waitsForHash[msgObject.md5][remAdd]['Bruteforce'] != null) {
+                                            conns[remAdd].hash = null;
+                                            delete waitsForHash[msgObject.md5][remAdd];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        ch.ack(msg);
+                    }, {noAck: false});
+                });
+                ch.assertExchange(process.env.npm_package_config_rabbitmq_exchangename, 'direct', {durable: false});
+            }
+        );
+    }
+);
+
+wsServer.on('request', function (request) {
+    var connection = request.accept('crack-protocol', request.origin);
+    conns[connection.remoteAddress] = {"conn": connection, "hash": null};
+    console.log((new Date()) + ' Connection accepted.');
+
+    connection.on('message', function (message) {
+        console.log('Received Message: ' + message.utf8Data);
+        var respJSON = JSON.parse(message.utf8Data);
+        conns[connection.remoteAddress] = {"conn": connection, "hash": respJSON.md5};
+        if (!waitsForHash[respJSON.md5]) {
+            waitsForHash[respJSON.md5] = {};
+        }
+        waitsForHash[respJSON.md5][connection.remoteAddress] = {'DB': null, 'Bruteforce': null, 'Webservice': null};
+
+        var requestToRabbit = {
+            'md5': respJSON.md5,
+            'action': 'get',
+            'success': null,
+            'status': 0
+        };
+
+        channel.publish(process.env.npm_package_config_rabbitmq_exchangename, 'order', new Buffer(JSON.stringify(requestToRabbit)));
+        respJSON.pw = "-- zu ermitteln --";
+        connection.sendUTF(JSON.stringify(respJSON));
+    });
+
+    connection.on('close', function (connection) {
+        if(conns[connection.remoteAddress] && conns[connection.remoteAddress].hash) {
+            if(waitsForHash[conns[connection.remoteAddress].hash] && waitsForHash[conns[connection.remoteAddress].hash][connection.remoteAddress]) {
+                delete waitsForHash[conns[connection.remoteAddress].hash][connection.remoteAddress];
+            }
+        }
+        delete conns[connection.remoteAddress];
+        console.log("Connection close: " + connection);
+    });
+});

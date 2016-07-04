@@ -31,13 +31,16 @@ def brute_force(body,controlList):
     i = 0
     found = False
     pw = ""
-    while not found and i< max:
+    err = None
+    while not found and i < max:
         if (controlList[md5] == 1):
-            return Reply(md5,"","Worker aborted")
-        pw = force(i, 0, "", md5,controlList)
+            return Reply(md5, "", 'Bruteforce', "Worker aborted")
+        pw = force(i, 0, "", md5, controlList)
         i += 1
         found = pw != ""
-    return Reply(md5, pw, None)
+    if not found:
+        err = "Hash not found by bruteforcing"
+    return Reply(md5, pw, 'Bruteforce', err)
 
 
 def call_api(body,controlList):
@@ -51,6 +54,9 @@ def call_api(body,controlList):
         res = urlopen(req)
         text = res.read().decode("utf-8")
         pw = json.loads(text)["result"]
+        status = json.loads(text)["status"]
+        if (status == False):
+            err = json.loads(text)["message"]
     except HTTPError as e:
         err = e
-    return Reply(md5, pw, err)
+    return Reply(md5, pw, 'Webservice', err)

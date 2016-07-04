@@ -15,7 +15,7 @@ class RequestHandler:
         sendresponse = True
         objRequest = json.loads(body.decode("utf-8"))
         response = {'md5': objRequest['md5'], 'action': objRequest['action'], 'success': None, 'status': 100,
-                    'pw': None, 'err': []}
+                    'pw': None, 'err': [], 'workertype': 'DB'}
 
         if ('action' in objRequest):
             if (objRequest['action'] == 'put'):
@@ -27,6 +27,7 @@ class RequestHandler:
                 response['success'] = result['success']
                 response['pw'] = objRequest['pw']
                 response['err'].extend(result['err'])
+                sendresponse = False
             elif (objRequest['action'] == 'get'):
                 print('[.] GET request for ' + objRequest['md5'])
                 self.workingOn = objRequest['md5']
@@ -47,7 +48,8 @@ class RequestHandler:
             elif (objRequest['action'] == 'stop'):
                 print('[.] STOP request for hash ' + objRequest['md5'])
 
-                self.breakcalculation.extend([objRequest['md5']])
+                if self.workingOn != None:
+                    self.breakcalculation.extend([objRequest['md5']])
                 sendresponse = False
             else:
                 print("[.] ERROR: action not recognized")

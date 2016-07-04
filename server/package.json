@@ -6,9 +6,24 @@
     "start": "node ./server.js"
   },
   "dependencies": {
-    "websocket": "^1.0.23"
+    "websocket": "^1.0.23",
+    "amqplib": "^0.4.1"
   },
   "config": {
-    "port": "8080"
+    "port": "8080",
+    "rabbitmq": {
+      "username": "distcomp",
+      "password": "distcomp",
+      "host": "localhost",
+      "port": "5672",
+      "vhost": "/",
+      "exchangename": "distcomp_md5_exchange",
+      "routingkeys": {
+        "order": "order",
+        "control": "control"
+      },
+      "replyqueuename": "distcomp_md5_replyqueue",
+      "replyqueuedurable": true
+    }
   }
 }
