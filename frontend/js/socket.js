@@ -31,9 +31,7 @@
             return;
         }
 
-        document.getElementById('output').innerHTML += '<p>' + "testadsfasdf" + ' : ' + "asdf" + '</p>';
-
-        ws = new WebSocket('ws://localhost:8080', 'chat-protocol');
+        ws = new WebSocket('ws://localhost:8080', 'crack-protocol');
         ws.onopen = function () {
             console.log('connected to server!');
         };
