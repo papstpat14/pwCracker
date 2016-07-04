@@ -17,12 +17,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, '../frontend')));
-
 app.use('/', routes);
 
 var confObj = JSON.parse(fs.readFileSync('./config/config.json', 'utf8'));
-console.info(confObj);
-
 
 app.set('port', process.env.PORT || confObj.port);
 
