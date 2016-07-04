@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var socketServer = require('websocket').server;
 var routes = require('./routes/index');
 var app = express();
+var fs = require('fs');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -19,8 +20,11 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/', routes);
 
+var confObj = JSON.parse(fs.readFileSync('./config/config.json', 'utf8'));
+console.info(confObj);
 
-app.set('port', process.env.PORT || 8080);
+
+app.set('port', process.env.PORT || confObj.port);
 
 var server = app.listen(app.get('port'), function () {
     console.log('Express server listening on port ' + server.address().port);
