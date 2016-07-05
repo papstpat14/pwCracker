@@ -49,8 +49,8 @@ _**A Distributed Computing Project**_
 
 ## How to run
 * $ node server.js
-* <start your database>
-* reach website localhost:8080 
+* `<start your database`>
+* reach website http://localhost:8080 
 
 
 
