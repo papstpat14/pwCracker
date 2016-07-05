@@ -1,5 +1,5 @@
 #!/bin/bash
-PROCESS="SCREEN -d -m nodejs /www/server/server.js"
+PROCESS="SCREEN -d -m npm start"
 PIDS=`ps ax | grep "$PROCESS" | grep -o '^[ ]*[0-9]*'`
 if [ -z "$PIDS" ]; then
 	echo "Process not running."
