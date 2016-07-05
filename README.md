@@ -22,7 +22,6 @@ _**A Distributed Computing Project**_
      * Student: Patrick Kainz 
      * Student: Markus Schalk
 
-
 ## Structure
 * /db Datenbank
 * /server NodeJS + Frontend
@@ -38,5 +37,21 @@ _**A Distributed Computing Project**_
 * Schritt 6: Client wird über Websocket über das Ergebnis informiert.
 
 ![Architekture](/doc/Architecture_new.jpg)
+
+## How to install
+* install node.js server
+* install python compiler
+* install database
+	* mongoDB
+	* redis
+* prepare database with your hashes
+	* for further information read /db/README.md
+
+## How to run
+* $ node server.js
+* <start your database>
+* reach website localhost:8080 
+
+
 
 
