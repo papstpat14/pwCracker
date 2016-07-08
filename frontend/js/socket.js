@@ -24,7 +24,7 @@
                 if (message.success === false) {
                     document.getElementById('output').innerHTML += '<p style="color: red;"><b>Passwort für ' + message.md5 + ' NICHT gefunden von ' + message.workertype + ' - Error: ' + message.err.toString() + '</b></p>';
                 } else {
-                    document.getElementById('output').innerHTML += '<p>Passwort für ' + message.md5 + ':' + message.pw + '</p>';
+                    //document.getElementById('output').innerHTML += '<p>Passwort für ' + message.md5 + ':' + message.pw + '</p>';
                 }
             }
         } else {
