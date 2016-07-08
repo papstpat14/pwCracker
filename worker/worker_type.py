@@ -1,3 +1,4 @@
+#Authors: Kainz Patrick and Schalk Markus
 import json
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen

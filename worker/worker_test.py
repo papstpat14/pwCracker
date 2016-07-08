@@ -1,3 +1,4 @@
+#Authors: Kainz Patrick and Schalk Markus
 import os
 import signal
 import subprocess

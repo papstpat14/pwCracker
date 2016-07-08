@@ -1,4 +1,5 @@
 #!/usr/bin/env python3.4
+#Authors: Kainz Patrick and Schalk Markus
 import json
 import threading
 import configparser

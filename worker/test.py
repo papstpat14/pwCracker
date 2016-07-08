@@ -1,3 +1,4 @@
+#Authors: Kainz Patrick and Schalk Markus
 from time import sleep
 
 import pika

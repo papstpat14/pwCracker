@@ -1,3 +1,4 @@
+#Authors: Kainz Patrick and Schalk Markus
 from urllib.error import HTTPError
 
 
